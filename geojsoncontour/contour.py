@@ -5,7 +5,7 @@ import numpy as np
 from matplotlib.colors import rgb2hex
 from geojson import Feature, LineString
 from geojson import Polygon, FeatureCollection
-from .utilities.multipoly import MP, keep_high_angle, set_contourf_properties,get_contourf_levels
+from .utilities.multipoly import MP, keep_high_angle, set_contourf_properties, get_contourf_levels
 
 
 def contour_to_geojson(contour, geojson_filepath=None, min_angle_deg=None,
@@ -67,7 +67,7 @@ def contourf_to_geojson_overlap(contourf, geojson_filepath=None, min_angle_deg=N
 
 def contourf_to_geojson(contourf, geojson_filepath=None, min_angle_deg=None,
                         ndigits=5, unit='', stroke_width=1, fill_opacity=.9, fill_opacity_range=None,
-                        geojson_properties=None, strdump=False, serialize=True):
+                        geojson_properties=None, strdump=False, serialize=True, cutoff_level=None):
     """Transform matplotlib.contourf to geojson with MultiPolygons."""
     if fill_opacity_range:
         variable_opacity = True
@@ -78,7 +78,10 @@ def contourf_to_geojson(contourf, geojson_filepath=None, min_angle_deg=None,
         variable_opacity = False
     polygon_features = []
     contourf_levels = get_contourf_levels(contourf.levels, contourf.extend)
+    counter = 0
     for coll, level in zip(contourf.collections, contourf_levels):
+        if counter == cutoff_level:
+            break
         color = coll.get_facecolor()
         muli = MP(coll, min_angle_deg, ndigits)
         polygon = muli.mpoly()
@@ -92,6 +95,7 @@ def contourf_to_geojson(contourf, geojson_filepath=None, min_angle_deg=None,
             # print(len(polygon.coordinates))
             if variable_opacity:
                 fill_opacity += opacity_increment
+        counter += 1
     feature_collection = FeatureCollection(polygon_features)
     return _render_feature_collection(feature_collection, geojson_filepath, strdump, serialize)
 
