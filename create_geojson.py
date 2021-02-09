@@ -40,19 +40,18 @@ skill = ncd['skill'][:, latli:latui, lonli:lonui]  # the variable is only for th
 trend = ncd['trend'][latli:latui, lonli:lonui]  # Observed trend, static map (not time dependent)
 
 ncd.close()
-n_contours = 17
-levels = np.linspace(start=-40, stop=40, num=n_contours)
-levels = np.arange(-40, 45, 5)
+n_contours = 18
+levels = np.linspace(start=-42.5, stop=42.5, num=n_contours)
+ticks = np.arange(-40, 45, 5)
 
 for num, unix_t in enumerate(time, start=0):
     figure = plt.figure()
     ax = figure.add_subplot(111)
     contourf = ax.contourf(lon, lat, ssh[num], levels=levels, cmap=plt.cm.coolwarm, extend='both')
     contourf_trend = ax.contourf(lon, lat, ssh[num] + trend, levels=levels, cmap=plt.cm.coolwarm, extend='both')
-    cbar = plt.colorbar(contourf)
+    cbar = plt.colorbar(contourf, ticks=ticks)
     plt.title('Example')
     plt.show()
-
     geojsonProps = {"time": int(time[num])*1000}
     out_file_name = '-' + str(len(time) - num) + '.geojson'
     out_file_name_trend = '-' + str(len(time) - num) + 'trend.geojson'
@@ -63,7 +62,7 @@ for num, unix_t in enumerate(time, start=0):
         geojson_filepath=out_file_name,
         ndigits=1,
         min_angle_deg=7,
-        stroke_width=2,
+        stroke_width=1,
         unit='cm',
         fill_opacity=1.0,
         geojson_properties=geojsonProps
@@ -73,7 +72,7 @@ for num, unix_t in enumerate(time, start=0):
         geojson_filepath=out_file_name_trend,
         ndigits=1,
         min_angle_deg=7,
-        stroke_width=2,
+        stroke_width=1,
         unit='cm',
         fill_opacity=1.0,
         geojson_properties=geojsonProps
